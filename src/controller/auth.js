@@ -1,14 +1,31 @@
 import pool from "../model/db.js";
 import bcrypt from "bcrypt";
+import * as authService from "../service/auth.service.js";
 
 const register = async (req, res) => {
+   try{
     const {email, name, password} = req.body;
-    const existing = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (existing.rows.length > 0) {
-        return res.status(400).json({ error: 'User already exists' });
-    }
-const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await pool.query('INSERT INTO users (email, name, password) VALUES ($1, $2, $3) RETURNING *', [email, name, hashedPassword]);
-    res.json(user.rows[0]);
+    const response = await authService.register(email, name, password);
+    return res.status(response.statusCode).json(response);
+   }catch(error){
+    return res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+        error: error.error || []
+    });
+   }
 }
+const login = async (req, res) => {
+    try{
+        const {email, password} = req.body;
+        const response = await authService.login(email, password);
+        return res.status(response.statusCode).json(response);
+    }catch(error){
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Internal Server Error",
+            error: error.error || []
+        });
+    }
+}
+export {register,login}
