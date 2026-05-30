@@ -1,10 +1,8 @@
 import { Router } from "express"
-import validate from "../../common/middleware/validate.middleware.js";
-import { registerClient } from "../controllers/client.controller.js";
+import { clientController } from "../controller/clients.js";
 
 const clientRouter = Router()
 
-clientRouter.post('/register',validate(clientValidation),registerClient);
-
+clientRouter.post('/register', clientController);
 
 export default clientRouter
