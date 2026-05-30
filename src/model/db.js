@@ -37,11 +37,13 @@ const seedDatabase = async () => {
         `, [hashedPassword]);
 
         const hashedSecret = await bcrypt.hash('demo-client-secret', 10);
+        const serverUrl = process.env.ISSUER_URL || 'http://localhost:3000';
+        const redirectUri = `${serverUrl}/demo-client/callback`;
         await pool.query(`
             INSERT INTO clients (client_id, client_secret, redirect_uri, app_name)
-            VALUES ('demo-client-id', $1, 'http://localhost:3000/demo-client/callback', 'Demo Client App')
-            ON CONFLICT (client_id) DO NOTHING
-        `, [hashedSecret]);
+            VALUES ('demo-client-id', $1, $2, 'Demo Client App')
+            ON CONFLICT (client_id) DO UPDATE SET redirect_uri = EXCLUDED.redirect_uri
+        `, [hashedSecret, redirectUri]);
 
         console.log('Database seeded with demo user and client!');
     } catch (err) {

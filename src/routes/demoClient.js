@@ -4,6 +4,11 @@ const demoClientRouter = Router();
 
 // Homepage
 demoClientRouter.get('/', (req, res) => {
+    const host = req.get('host');
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const redirectUri = `${protocol}://${host}/demo-client/callback`;
+    const authUrl = `/api/oidc/authorize?client_id=demo-client-id&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid&state=demosession123`;
+
     res.send(`
         <!DOCTYPE html>
         <html lang="en">
@@ -30,10 +35,10 @@ demoClientRouter.get('/', (req, res) => {
                     </svg>
                 </div>
                 <h1 class="text-4xl font-bold text-white tracking-tight mb-3">Zomato Demo App</h1>
-                <p className="text-slate-400 text-base max-w-md mx-auto mb-8 leading-relaxed">
+                <p class="text-slate-400 text-base max-w-md mx-auto mb-8 leading-relaxed">
                     Welcome to the demo client app! Click below to authenticate securely using your custom OIDC Provider.
                 </p>
-                <a href="/api/oidc/authorize?client_id=demo-client-id&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdemo-client%2Fcallback&response_type=code&scope=openid&state=demosession123" 
+                <a href="${authUrl}" 
                    class="inline-flex w-full items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-950/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 space-x-2">
                     <span>Login using Custom OIDC</span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -55,6 +60,10 @@ demoClientRouter.get('/callback', async (req, res) => {
     }
 
     try {
+        const host = req.get('host');
+        const protocol = host.includes('localhost') ? 'http' : 'https';
+        const redirectUri = `${protocol}://${host}/demo-client/callback`;
+
         // Step 1: Exchange Code for Token (Server-to-Server)
         const tokenResponse = await fetch('http://localhost:3000/api/oidc/token', {
             method: 'POST',
@@ -64,7 +73,7 @@ demoClientRouter.get('/callback', async (req, res) => {
                 code: code,
                 client_id: 'demo-client-id',
                 client_secret: 'demo-client-secret',
-                redirect_uri: 'http://localhost:3000/demo-client/callback'
+                redirect_uri: redirectUri
             })
         });
 
