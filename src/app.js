@@ -1,17 +1,28 @@
 import express from "express";
 import authRouter from "./routes/auth.js";
 import clientRouter from "./routes/clients.js";
+import oidcRouter from "./routes/oidc.js";
+import session from 'express-session'
 
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}))
 
 app.use("/api/auth", authRouter);
 app.use("/api/clients", clientRouter);
+app.use("/api/oidc", oidcRouter);
 
 app.get("/", (req, res) => {
     res.json({ message: "OIDC Provider Server is running" });
 });
+
 
 app.use((err, req, res, next) => {
     console.error("App Error:", err);
