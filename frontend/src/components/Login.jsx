@@ -1,5 +1,9 @@
 import { useState } from 'react';
 
+const BACKEND_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : window.location.origin;
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +30,7 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -39,7 +43,7 @@ export default function Login() {
       }
 
       const searchParams = new URLSearchParams(window.location.search);
-      window.location.href = `http://localhost:3000/api/oidc/authorize?${searchParams.toString()}`;
+      window.location.href = `${BACKEND_URL}/api/oidc/authorize?${searchParams.toString()}`;
     } catch (err) {
       setError(err.message);
     } finally {

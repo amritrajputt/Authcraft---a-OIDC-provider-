@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
 
+const BACKEND_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : window.location.origin;
+
 export default function Consent() {
   const [appName, setAppName] = useState('External Application');
   const [scopes, setScopes] = useState([]);
@@ -28,7 +32,7 @@ export default function Consent() {
 
   const handleContinue = () => {
     if (!params) return;
-    window.location.href = `http://localhost:3000/api/oidc/authorize?${params.toString()}&consented=true`;
+    window.location.href = `${BACKEND_URL}/api/oidc/authorize?${params.toString()}&consented=true`;
   };
 
   const getScopeDescription = (scopeName) => {
