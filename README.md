@@ -16,7 +16,8 @@ This project implements standard OAuth 2.0 and OIDC specifications, featuring as
 
 ### 🌐 2. Decoupled Frontend (React + Tailwind CSS v4)
 * **Glassmorphic Login UI**: Beautiful interface with input validations and credentials submission.
-* **Interactive Consent UI**: Mimics the Google Consent screen layout, displaying exact scopes requested, descriptions, and dynamic client identification.
+* **Autofill Demo Credentials Helper**: Quick demo banner on the login screen to allow one-click login for testers/recruiters without manual copy-pasting.
+* **Interactive Consent UI**: Mimics a standard user consent screen layout, displaying exact scopes requested, descriptions, and dynamic client identification.
 * **Query Parameter Routing**: Light, dependency-free internal router based on browser location state.
 
 ### 📚 3. Standard OIDC Endpoints
@@ -206,10 +207,11 @@ The server includes a pre-packaged OIDC Demo Client App to easily test the Ident
 1. Start both the backend and frontend servers as described above.
 2. Open your browser and navigate to **`http://localhost:3000/demo-client`**.
 3. Click the **Login using Custom OIDC** button.
-4. You will be redirected to the React frontend Sign In page (`http://localhost:5173/login`).
-5. Log in with the pre-seeded credentials:
+4. You will be redirected to the React frontend Sign In page (e.g., `http://localhost:5174/login` or `http://localhost:5173/login`).
+5. Click **Autofill Demo Credentials** to automatically populate the credentials:
    - **Email**: `demo@example.com`
    - **Password**: `password123`
+   and click **Sign In**.
 6. You will then see the Consent Screen requesting the `openid` scope. Click **Continue**.
 7. The server will redirect you back to the Demo Client callback page (`http://localhost:3000/demo-client/callback`), showing:
    - **User Profile Information** (retrieved from the `/api/oidc/userinfo` endpoint using the Access Token)
