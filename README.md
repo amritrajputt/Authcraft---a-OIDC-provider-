@@ -1,16 +1,83 @@
-# OIDC Provider from Scratch
+# Custom OIDC Identity Provider (From Scratch)
 
-A custom OpenID Connect (OIDC) Identity Provider built from scratch using Node.js, Express, and PostgreSQL (running in Docker). This project demonstrates the fundamental concepts behind authentication, OAuth 2.0 authorization, and OIDC federated identity.
+A custom, fully compliant OpenID Connect (OIDC) Identity Provider built from scratch using Node.js/Express, PostgreSQL, and a decoupled React (Tailwind CSS v4) frontend. 
+
+This project implements standard OAuth 2.0 and OIDC specifications, featuring asymmetric cryptography (RS256), a redirect-based consent mechanism, and robust protections against session hijacking and code replay attacks.
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Key Features
 
-- **Runtime**: Node.js (configured as ES Modules)
-- **Framework**: Express.js
-- **Database**: PostgreSQL (Dockerized)
-- **Validation**: Joi
-- **Cryptography & Security**: bcrypt, jsonwebtoken, crypto (RSA-256)
+### 🔐 1. Cryptography & Security
+* **Asymmetric RS256 Signing**: Tokens are signed using an RSA Private Key and verified by client apps using the server's public key exposed via JWKS.
+* **Anti-Replay Protection**: Atomic, single-transaction authorization code consumption prevents race conditions (concurrent replay attacks) during token exchanges.
+* **Credentials Security**: Hashing of user passwords and client secrets via `bcrypt` (10 rounds).
+* **Automatic Localhost CORS**: Whitelists dynamically any local development port (`localhost:\d+`) during development while maintaining strict credentials tracking.
+
+### 🌐 2. Decoupled Frontend (React + Tailwind CSS v4)
+* **Glassmorphic Login UI**: Beautiful interface with input validations and credentials submission.
+* **Interactive Consent UI**: Mimics the Google Consent screen layout, displaying exact scopes requested, descriptions, and dynamic client identification.
+* **Query Parameter Routing**: Light, dependency-free internal router based on browser location state.
+
+### 📚 3. Standard OIDC Endpoints
+* **Discovery Config**: `/.well-known/openid-configuration` returns all standard provider metadata.
+* **JWKS Endpoint**: `/jwks.json` and `/.well-known/jwks.json` publish the server's active RSA Public Key.
+* **Core Flow Endpoints**: `/api/oidc/authorize`, `/api/oidc/token`, and `/api/oidc/userinfo`.
+
+---
+
+## 🗺️ Flow Architecture
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User Browser
+    participant Client as Client Application
+    participant Server as OIDC Server (Port 3000)
+    participant React as React Frontend (Port 5174)
+    participant DB as PostgreSQL Database
+
+    Client->>User: Redirect to authorize endpoint
+    User->>Server: GET /api/oidc/authorize?...
+    Server->>Server: Check Session Cookie
+    alt User Not Logged In
+        Server->>User: Redirect to Login
+        User->>React: GET http://localhost:5174/login
+        React->>User: Render Sign In Screen
+        User->>React: Submit Email/Password
+        React->>Server: POST /api/auth/login
+        Server->>DB: Verify Credentials
+        Server->>React: 200 OK + Set-Cookie (Session)
+        React->>User: Redirect back to /api/oidc/authorize
+    end
+
+    User->>Server: GET /api/oidc/authorize?... (with Cookie)
+    Server->>Server: Check Consent Flag
+    alt User Has Not Consented
+        Server->>User: Redirect to Consent Screen
+        User->>React: GET http://localhost:5174/consent
+        React->>User: Render Scope Permissions
+        User->>React: Approve Scopes (Click Continue)
+        React->>User: Redirect back to /api/oidc/authorize?consented=true
+    end
+
+    User->>Server: GET /api/oidc/authorize?...&consented=true
+    Server->>DB: Save short-lived authorization code (expires in 2m)
+    Server->>User: Redirect to Client App
+    User->>Client: GET http://localhost:4000/callback?code=CODE&state=STATE
+
+    Note over Client, Server: Server-to-Server Token Exchange
+    Client->>Server: POST /api/oidc/token (code, client_secret)
+    Server->>DB: Atomic update `is_used = true` where `code` is unused
+    DB-->>Server: Return updated code record
+    Server->>Server: Sign Access, Refresh, and ID Tokens (RS256 Private Key)
+    Server->>Client: Return Tokens JSON
+
+    Note over Client, Server: Retrieve User Profile
+    Client->>Server: GET /api/oidc/userinfo (Header: Bearer AccessToken)
+    Server->>Server: Verify token signature (Public Key)
+    Server->>Client: Return User Profile claims (sub, name, email)
+```
 
 ---
 
@@ -18,66 +85,91 @@ A custom OpenID Connect (OIDC) Identity Provider built from scratch using Node.j
 
 ```text
 oidc-provider/
-├── common/
+├── common/                     # Shared wrappers
 │   ├── dto/
-│   │   └── base.dto.js           # Base validation class wrapper
+│   │   └── base.dto.js         # Base Joi schema wrapper
 │   ├── middleware/
-│   │   └── validate.middleware.js # Schema validation middleware
-│   ├── ApiError.js               # Centralized API error wrapper
-│   └── ApiResponse.js            # Standard API response wrapper
+│   │   └── validate.middleware.js # Request schema validator
+│   ├── ApiError.js             # Standard Express error wrapper
+│   └── ApiResponse.js          # Standard API response wrapper
 ├── db/
 │   └── migrations/
-│       ├── 001_create_users.sql   # User schema
-│       ├── 002_create_clients.sql # Client/App registration schema
-│       └── 003_create_authorization_codes.sql # Authorization codes schema
-├── src/
+│       ├── 001_create_users.sql
+│       ├── 002_create_clients.sql
+│       └── 003_create_authorization_codes.sql
+├── frontend/                   # Decoupled React Client App
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Login.jsx       # Custom Login screen
+│   │   │   └── Consent.jsx     # Google-like Consent screen
+│   │   ├── App.jsx             # Frontend path router
+│   │   └── index.css           # Tailwind CSS v4 configuration
+│   ├── vite.config.js          # Vite config with @tailwindcss/vite
+│   └── package.json
+├── src/                        # Express Backend OIDC Provider
 │   ├── controller/
-│   │   └── auth.js               # Auth request controllers
+│   │   ├── auth.js             # Auth route handler (Register/Login)
+│   │   ├── clients.js          # Client registration handler
+│   │   └── oidc.js             # Core OIDC protocol handlers
 │   ├── dto/
-│   │   └── dto.auth.js           # Joi schemas for auth validation
+│   │   └── dto.auth.js         # Input validation schemas
 │   ├── model/
-│   │   └── db.js                 # PostgreSQL connection pool
+│   │   └── db.js               # PostgreSQL connection pool
 │   ├── routes/
-│   │   ├── auth.js               # Authentication endpoints
-│   │   ├── clients.js            # Client management endpoints (TBD)
-│   │   ├── discovery.js          # OIDC configuration discovery (TBD)
-│   │   └── oidc.js               # OAuth2/OIDC core flow (TBD)
+│   │   ├── auth.js
+│   │   ├── clients.js
+│   │   ├── discovery.js        # Discovery & JWKS routes
+│   │   └── oidc.js
 │   ├── service/
-│   │   └── auth.service.js       # Authentication service layer
-│   └── app.js                    # Express app configuration & middleware mounting
-├── .env                          # Local environment variables
-├── docker-compose.yml            # PostgreSQL container definition
-├── index.js                      # Application server entry point
-├── package.json                  # NPM dependencies & npm scripts
-└── README.md                     # Project documentation
+│   │   ├── auth.service.js     # User registration/login logic
+│   │   ├── client.service.js   # Client credential registration
+│   │   └── oidc.service.js     # OIDC Core endpoint logic
+│   ├── utils/
+│   │   ├── keys.js             # RSA public/private key generator
+│   │   └── utils.jwt.js        # Token signing & verification
+│   └── app.js                  # App middlewares and routes mounting
+├── .env                        # Server configurations
+├── docker-compose.yml          # Postgres database container definition
+├── index.js                    # Backend entrypoint
+├── manual-testing-guide.md     # Steps for manual curls/Postman testing
+├── package.json
+└── test-oidc.js                # Complete E2E integration test script
 ```
 
 ---
 
 ## ⚙️ Setup & Installation
 
-### 1. Prerequisite Environment Variables
-Create a `.env` file in the root directory with the following variables:
+### 1. Configure local variables
+Create a `.env` file in the root directory:
 ```ini
 PORT=3000
 ISSUER_URL=http://localhost:3000
-PRIVATE_KEY= 
+FRONTEND_URL=http://localhost:5174
 
 DB_HOST=localhost
 DB_PORT=5433
 DB_USER=oidc_user
 DB_PASSWORD=oidc_pass
 DB_NAME=oidc_db
+
+SESSION_SECRET=your_super_session_secret
+JWT_REFRESH_SECRET=your_super_refresh_secret
+JWT_SECRET=your_super_jwt_secret
+
+PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
+...[Your generated pkcs8 PEM RSA private key here]...
+-----END PRIVATE KEY-----"
 ```
 
-### 2. Start PostgreSQL Container
-Spin up the PostgreSQL database in the background:
+### 2. Launch PostgreSQL Container
+Spin up the database container in Docker:
 ```bash
 docker-compose up -d postgres
 ```
 
 ### 3. Initialize Database Migrations
-Run the SQL migration scripts in sequence on the running PostgreSQL container:
+Run the SQL migration scripts in sequence to set up tables:
 ```powershell
 # In PowerShell:
 Get-Content db/migrations/001_create_users.sql | docker exec -i oidc_postgres psql -U oidc_user -d oidc_db
@@ -85,84 +177,34 @@ Get-Content db/migrations/002_create_clients.sql | docker exec -i oidc_postgres 
 Get-Content db/migrations/003_create_authorization_codes.sql | docker exec -i oidc_postgres psql -U oidc_user -d oidc_db
 ```
 
-### 4. Run the Development Server
-Install dependencies and launch the server in watch-mode:
+### 4. Run the Servers
+In the root directory, install dependencies and launch the backend:
 ```bash
 pnpm install
 pnpm run dev
 ```
 
----
-
-## 🔌 API Documentation
-
-### Authentication Endpoints
-
-#### 1. Register User
-- **URL**: `/api/auth/register`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Request Body**:
-  ```json
-  {
-    "name": "Alex Mercer",
-    "email": "alex@example.com",
-    "password": "securepassword123"
-  }
-  ```
-- **Response** (201 Created):
-  ```json
-  {
-    "statusCode": 201,
-    "data": {
-      "id": "uuid-here",
-      "email": "alex@example.com",
-      "name": "Alex Mercer",
-      "created_at": "timestamp"
-    },
-    "message": "User registered successfully"
-  }
-  ```
-
-#### 2. User Login
-- **URL**: `/api/auth/login`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Request Body**:
-  ```json
-  {
-    "email": "alex@example.com",
-    "password": "securepassword123"
-  }
-  ```
-- **Response** (200 OK):
-  ```json
-  {
-    "statusCode": 200,
-    "data": {
-      "id": "uuid-here",
-      "email": "alex@example.com",
-      "name": "Alex Mercer"
-    },
-    "message": "User logged in successfully"
-  }
-  ```
+In a separate terminal tab, move into `frontend/` and launch the React app:
+```bash
+cd frontend
+pnpm install
+pnpm run dev
+```
+The React frontend will start on `http://localhost:5174/` (or `5173`).
 
 ---
 
-## 🗺️ Implementation Roadmap
+## 🧪 Verification & Testing
 
-### 🟩 Phase 1: Foundation (Completed)
-- [x] Configure PostgreSQL Docker instance.
-- [x] Establish DB schema migrations.
-- [x] Create centralized DTO validation & validation middlewares.
-- [x] Develop `/auth/register` and `/auth/login` APIs.
-- [x] Construct modular Express server starting from `index.js`.
+### 1. Automated Integration Test (Quickest)
+Run the automated test script in the project root:
+```bash
+node test-oidc.js
+```
+This script dynamically registers a client, registers a user, completes login, simulates the consent redirect loop, exchanges tokens, tests replay protection, queries user profile info, and verifies OIDC config/JWKS.
 
-### 🟦 Phase 2: OIDC Core Protocol (In Progress)
-- [ ] Develop RSA cryptographic keys utility for JWT signing.
-- [ ] Create Client application registration `/clients/register`.
-- [ ] Implement OAuth `/authorize` authorization code generation.
-- [ ] Implement OIDC `/token` exchange for ID tokens and Access tokens.
-- [ ] Develop `/userinfo` route for user details extraction.
-- [ ] Implement discovery endpoints (`/.well-known/openid-configuration` & `/.well-known/jwks.json`).
+### 2. Postman Collection
+Import the pre-configured [oidc-provider.postman_collection.json](file:///d:/oidc%20%20provider/oidc-provider.postman_collection.json) directly into Postman. It includes pre-request scripts that automatically extract values from response payloads to chain the flow.
+
+### 3. Manual Browser Verification
+A step-by-step manual testing guide using your browser and standard `curl` calls is available at [manual-testing-guide.md](file:///d:/oidc%20%20provider/manual-testing-guide.md).

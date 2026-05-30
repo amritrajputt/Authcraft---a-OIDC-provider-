@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import authRouter from "./routes/auth.js";
 import clientRouter from "./routes/clients.js";
 import oidcRouter from "./routes/oidc.js";
@@ -6,6 +7,17 @@ import session from 'express-session'
 import discoveryRoutes from './routes/discovery.js';
 
 const app = express();
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

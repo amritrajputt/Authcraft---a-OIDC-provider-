@@ -17,11 +17,20 @@ const authorizeService = async (req, res) => {
         throw ApiError.badRequest("Invalid response type. Only 'code' is supported.");
     }
 
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
     if (!req.session.userId) {
-        throw ApiError.unauthorized("User not logged in. Please login via POST /api/auth/login first.");
+        const loginUrl = `${frontendUrl}/login?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=${response_type}&scope=${scope}&state=${state}`;
+        return res.redirect(loginUrl);
     }
-    const userId = req.session.userId
-    console.log("User logged in:", userId)
+
+    if (req.query.consented !== 'true') {
+        const consentUrl = `${frontendUrl}/consent?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=${response_type}&scope=${scope}&state=${state}&app_name=${encodeURIComponent(client.rows[0].app_name)}`;
+        return res.redirect(consentUrl);
+    }
+
+    const userId = req.session.userId;
+    console.log("User logged in:", userId);
     const code = uuidv4();
     const expires_at = new Date(Date.now() + 2 * 60 * 1000);
     await pool.query(
