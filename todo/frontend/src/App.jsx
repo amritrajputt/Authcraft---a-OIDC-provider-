@@ -117,7 +117,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white text-lg">
-        <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mr-3"></div>
+        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
         Checking session status...
       </div>
     );
@@ -128,12 +128,12 @@ export default function App() {
       
       {!user ? (
         <div className="relative w-full max-w-md">
-          <div className="absolute -top-12 -left-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute -top-12 -left-12 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
 
           <div className="relative w-full bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 rounded-3xl p-10 text-center shadow-2xl">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-900/50 mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-8 h-8 text-white">
+            <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-white/5 mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-8 h-8 text-black">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.746 3.746 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
               </svg>
             </div>
@@ -156,7 +156,7 @@ export default function App() {
 
             <button
               onClick={handleLogin}
-              className="inline-flex w-full items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-2xl transition duration-300 shadow-lg shadow-purple-900/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 space-x-3 cursor-pointer text-sm font-sans"
+              className="inline-flex w-full items-center justify-center bg-white text-black font-semibold py-4 px-6 rounded-2xl transition duration-300 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-white/50 space-x-3 cursor-pointer text-sm font-sans"
             >
               <span>Login with Custom OIDC</span>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-4 h-4">
@@ -170,7 +170,7 @@ export default function App() {
           
           <div className="bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 rounded-2xl p-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center font-bold text-black shadow-md">
                 TM
               </div>
               <div>
@@ -199,7 +199,7 @@ export default function App() {
               </div>
               <div>
                 <span className="text-neutral-500 font-medium block">Subject ID (sub)</span>
-                <span className="text-purple-400 font-mono text-xs break-all mt-1 block">{user.sub}</span>
+                <span className="text-neutral-400 font-mono text-xs break-all mt-1 block">{user.sub}</span>
               </div>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function App() {
                     className="flex items-center justify-between bg-neutral-950/80 border border-neutral-850 rounded-2xl p-4 transition hover:border-neutral-700"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-5 h-5 rounded-full border border-purple-500/50 flex items-center justify-center text-purple-400">
+                      <div className="w-5 h-5 rounded-full border border-white/50 flex items-center justify-center text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3 h-3">
                           <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                         </svg>
@@ -249,13 +249,13 @@ export default function App() {
                 placeholder="What needs to be done?"
                 value={task}
                 onChange={(e) => setTask(e.target.value)}
-                className="flex-1 bg-neutral-950 border border-neutral-800 focus:border-purple-500 rounded-2xl px-5 py-3.5 text-neutral-100 placeholder-neutral-500 outline-none transition text-sm font-sans"
+                className="flex-1 bg-neutral-950 border border-neutral-800 focus:border-white rounded-2xl px-5 py-3.5 text-neutral-100 placeholder-neutral-500 outline-none transition text-sm font-sans"
                 required
                 autoComplete="off"
               />
               <button
                 type="submit"
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3.5 px-6 rounded-2xl transition duration-300 shadow-md shadow-purple-900/20 text-sm whitespace-nowrap cursor-pointer font-sans"
+                className="bg-white hover:bg-neutral-200 text-black font-semibold py-3.5 px-6 rounded-2xl transition duration-300 text-sm whitespace-nowrap cursor-pointer font-sans"
               >
                 Add Task
               </button>

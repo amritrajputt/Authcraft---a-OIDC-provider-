@@ -20,7 +20,17 @@ const login = async (req, res) => {
         const {email, password} = req.body;
         const response = await authService.login(email, password);
         req.session.userId = response.data.id;
-        return res.status(response.statusCode).json(response);
+        
+        req.session.save((err) => {
+            if (err) {
+                console.error("Session save error:", err);
+                return res.status(500).json({
+                    success: false,
+                    message: "Failed to initialize login session"
+                });
+            }
+            return res.status(response.statusCode).json(response);
+        });
     }catch(error){
         return res.status(error.statusCode || 500).json({
             success: false,

@@ -54,7 +54,7 @@ export default function Consent() {
         <div className="w-full bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-2xl">
          
           <div className="flex items-center space-x-4 pb-6 border-b border-neutral-850 mb-6">
-            <div className="w-12 h-12 rounded-full bg-purple-600/20 text-purple-400 flex items-center justify-center flex-shrink-0 font-bold text-xl">
+            <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center flex-shrink-0 font-bold text-xl">
               OP
             </div>
             <div>
@@ -66,7 +66,7 @@ export default function Consent() {
         
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-heading font-bold text-white mb-2">Sign in to <span className="text-purple-400 font-extrabold">{appName}</span></h2>
+              <h2 className="text-2xl font-heading font-bold text-white mb-2">Sign in to <span className="font-extrabold underline decoration-white underline-offset-4">{appName}</span></h2>
               <p className="text-neutral-300 text-sm leading-relaxed">
                 By continuing, the OIDC server will share your basic identity details and allow access to the following permissions:
               </p>
@@ -78,7 +78,7 @@ export default function Consent() {
               <div className="space-y-3">
                 {scopes.map((scope) => (
                   <div key={scope} className="flex items-start space-x-3 text-sm">
-                    <div className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-5 h-5 rounded-full bg-white text-black flex items-center justify-center flex-shrink-0 mt-0.5">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                         <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
                       </svg>
@@ -102,14 +102,14 @@ export default function Consent() {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="flex-1 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 text-neutral-300 font-semibold py-3 px-4 rounded-xl transition outline-none focus:ring-2 focus:ring-purple-500/50"
+                className="flex-1 bg-transparent hover:bg-neutral-850 border border-neutral-800 text-neutral-300 font-semibold py-3 px-4 rounded-xl transition outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleContinue}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-purple-900/40 outline-none focus:ring-2 focus:ring-purple-500/50"
+                className="flex-1 bg-white hover:bg-neutral-200 text-black font-semibold py-3 px-4 rounded-xl transition outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
               >
                 Continue
               </button>

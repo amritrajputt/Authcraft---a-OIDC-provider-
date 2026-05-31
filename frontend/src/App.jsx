@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Consent from './components/Consent';
+import RegisterClient from './components/RegisterClient';
 
 export default function App() {
   const [route, setRoute] = useState(window.location.pathname);
@@ -18,6 +19,10 @@ export default function App() {
 
   if (route === '/consent') {
     return <Consent />;
+  }
+
+  if (route === '/register-client') {
+    return <RegisterClient />;
   }
 
   return <Login />;
