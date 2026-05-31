@@ -7,6 +7,8 @@ const BACKEND_URL = window.location.hostname === 'localhost'
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +22,7 @@ export default function Login() {
     setPassword('password123');
   };
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -29,7 +31,7 @@ export default function Login() {
       return;
     }
 
-    if (!email || !password) {
+    if (!email || !password || (isRegistering && !name)) {
       setError('Please fill in all fields');
       return;
     }
@@ -40,6 +42,20 @@ export default function Login() {
 
     setLoading(true);
     try {
+      if (isRegistering) {
+        // Step 1: Register the new user
+        const regResponse = await fetch(`${BACKEND_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, name, password }),
+        });
+        const regData = await regResponse.json();
+        if (!regResponse.ok) {
+          throw new Error(regData.message || 'Registration failed.');
+        }
+      }
+
+      // Step 2: Establish session (either directly for login, or auto-login for registration)
       const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,9 +86,11 @@ export default function Login() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-heading font-bold text-white tracking-tight">OIDC Sign In</h1>
+            <h1 className="text-3xl font-heading font-bold text-white tracking-tight">
+              {isRegistering ? 'Create Account' : 'OIDC Sign In'}
+            </h1>
             <p className="text-neutral-400 text-sm mt-1">
-              {hasOidcParams ? 'Sign in to authorize your application' : 'Identity Provider Portal'}
+              {isRegistering ? 'Register to authorize your application' : (hasOidcParams ? 'Sign in to authorize your application' : 'Identity Provider Portal')}
             </p>
           </div>
 
@@ -108,24 +126,40 @@ export default function Login() {
             </div>
           ) : (
             <>
-              <div className="mb-6 bg-purple-950/20 border border-purple-900/40 rounded-2xl p-4 text-center">
-                <p className="text-xs text-purple-300 mb-2 font-medium">Quick Demo</p>
-                <button
-                  type="button"
-                  onClick={handleAutofillDemo}
-                  className="inline-flex items-center justify-center bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-purple-200 border border-purple-500/30 font-semibold py-2 px-4 rounded-xl text-xs transition cursor-pointer"
-                >
-                  Autofill Demo Credentials
-                </button>
-              </div>
+              {!isRegistering && (
+                <div className="mb-6 bg-purple-950/20 border border-purple-900/40 rounded-2xl p-4 text-center">
+                  <p className="text-xs text-purple-300 mb-2 font-medium">Quick Demo</p>
+                  <button
+                    type="button"
+                    onClick={handleAutofillDemo}
+                    className="inline-flex items-center justify-center bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-purple-200 border border-purple-500/30 font-semibold py-2 px-4 rounded-xl text-xs transition cursor-pointer"
+                  >
+                    Autofill Demo Credentials
+                  </button>
+                </div>
+              )}
 
-              <form onSubmit={handleLogin} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
                   <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl flex items-start space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0 mt-0.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                     </svg>
                     <span>{error}</span>
+                  </div>
+                )}
+
+                {isRegistering && (
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      placeholder="Jane Doe"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full bg-neutral-950 border border-neutral-850 focus:border-purple-500 rounded-xl px-4 py-3 text-white placeholder-neutral-500 outline-none transition"
+                      required
+                    />
                   </div>
                 )}
 
@@ -156,18 +190,31 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3.5 px-4 rounded-xl transition shadow-lg shadow-purple-900/40 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3.5 px-4 rounded-xl transition shadow-lg shadow-purple-900/40 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   {loading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Signing In...</span>
+                      <span>{isRegistering ? 'Registering...' : 'Signing In...'}</span>
                     </>
                   ) : (
-                    <span>Sign In</span>
+                    <span>{isRegistering ? 'Register & Authorize' : 'Sign In'}</span>
                   )}
                 </button>
               </form>
+
+              <div className="text-center mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegistering(!isRegistering);
+                    setError('');
+                  }}
+                  className="text-sm text-purple-400 hover:text-purple-300 font-semibold cursor-pointer transition focus:outline-none"
+                >
+                  {isRegistering ? 'Already have an account? Sign In' : 'New to Custom OIDC? Create an account'}
+                </button>
+              </div>
             </>
           )}
         </div>
