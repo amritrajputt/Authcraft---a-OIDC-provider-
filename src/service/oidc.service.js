@@ -29,7 +29,6 @@ const authorizeService = async (req, res) => {
                 isRedirectUriValid = true;
             }
         } catch (e) {
-            // Invalid URL format
         }
     }
 
