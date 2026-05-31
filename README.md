@@ -137,9 +137,8 @@ oidc-provider/
 ├── .env                        # Server configurations
 ├── docker-compose.yml          # Postgres database container definition
 ├── index.js                    # Backend entrypoint
-├── manual-testing-guide.md     # Steps for manual curls/Postman testing
 ├── package.json
-└── test-oidc.js                # Complete E2E integration test script
+└── todo/                       # Complete OIDC client implementation (Todo App)
 ```
 
 ---
@@ -200,22 +199,114 @@ The React frontend will start on `http://localhost:5174/` (or `5173`).
 
 ---
 
-## 🧪 Testing with the Built-in OIDC Demo Client
+## 🔌 How to Configure & Integrate OIDC in Your Project
 
-The server includes a pre-packaged OIDC Demo Client App to easily test the Identity Provider flow end-to-end.
+To integrate your client application with this custom OIDC Identity Provider, follow the steps below. We also provide a complete, standalone reference application inside the [/todo](file:///d:/oidc%20%20provider/todo) folder that implements this exact flow.
 
-1. Start both the backend and frontend servers as described above.
-2. Open your browser and navigate to **`http://localhost:3000/demo-client`**.
-3. Click the **Login using Custom OIDC** button.
-4. You will be redirected to the React frontend Sign In page (e.g., `http://localhost:5174/login` or `http://localhost:5173/login`).
-5. Click **Autofill Demo Credentials** to automatically populate the credentials:
-   - **Email**: `demo@example.com`
-   - **Password**: `password123`
-   and click **Sign In**.
-6. You will then see the Consent Screen requesting the `openid` scope. Click **Continue**.
-7. The server will redirect you back to the Demo Client callback page (`http://localhost:3000/demo-client/callback`), showing:
-   - **User Profile Information** (retrieved from the `/api/oidc/userinfo` endpoint using the Access Token)
-   - **ID Token** (signed RS256 JWT containing user identity claims)
-   - **Access Token** (signed bearer token)
-   - **Verified OAuth state** parameter
+### 1. Register Your Client Application
+Before initiating the flow, you must register your application with the OIDC provider to obtain a `client_id` and `client_secret`.
+
+* **Endpoint**: `POST http://localhost:3000/api/clients/register`
+* **Headers**: `Content-Type: application/json`
+* **Body**:
+  ```json
+  {
+    "app_name": "My Custom App",
+    "redirect_uri": "http://localhost:4000/api/auth/callback"
+  }
+  ```
+* **Response (201 Created)**:
+  ```json
+  {
+    "statusCode": 201,
+    "data": {
+      "client_id": "YOUR_ASSIGNED_CLIENT_ID",
+      "client_secret": "YOUR_ASSIGNED_CLIENT_SECRET"
+    }
+  }
+  ```
+
+### 2. Configure Client Environment Variables
+Store the credentials and provider endpoints in your client project's `.env` configuration file:
+
+```ini
+PORT=4000
+OIDC_PROVIDER_URL=http://localhost:3000
+CLIENT_ID=YOUR_ASSIGNED_CLIENT_ID
+CLIENT_SECRET=YOUR_ASSIGNED_CLIENT_SECRET
+REDIRECT_URI=http://localhost:4000/api/auth/callback
+```
+
+### 3. Redirect Users for Authentication
+When a user clicks "Login", redirect their browser to the OIDC provider's authorize endpoint:
+
+```text
+http://localhost:3000/api/oidc/authorize?client_id=<CLIENT_ID>&redirect_uri=<REDIRECT_URI>&response_type=code&scope=openid+profile+email&state=<CSRF_STATE>
+```
+
+* **Query Parameters**:
+  - `client_id`: The ID generated during client registration.
+  - `redirect_uri`: Must match the exact redirect URI registered.
+  - `response_type`: Must be `code`.
+  - `scope`: Standard OIDC scopes requested (e.g., `openid profile email`).
+  - `state`: A random, cryptographically secure state parameter to prevent CSRF attacks.
+
+### 4. Exchange Authorization Code for Tokens
+Once the user logs in and consents, the OIDC provider will redirect the user back to your `REDIRECT_URI` with a `code` and `state` query parameter:
+
+```text
+GET http://localhost:4000/api/auth/callback?code=AUTHORIZATION_CODE&state=CSRF_STATE
+```
+
+Verify that the `state` matches your session state, then make a server-to-server POST request to exchange the code for JSON Web Tokens:
+
+* **Endpoint**: `POST http://localhost:3000/api/oidc/token`
+* **Headers**: `Content-Type: application/json`
+* **Body**:
+  ```json
+  {
+    "grant_type": "authorization_code",
+    "code": "AUTHORIZATION_CODE",
+    "client_id": "YOUR_CLIENT_ID",
+    "client_secret": "YOUR_CLIENT_SECRET",
+    "redirect_uri": "YOUR_REDIRECT_URI"
+  }
+  ```
+* **Response (200 OK)**:
+  ```json
+  {
+    "access_token": "eyJhbGciOiJSUzI1Ni...",
+    "id_token": "eyJhbGciOiJSUzI1Ni...",
+    "refresh_token": "eyJhbGciOiJSUzI1Ni...",
+    "token_type": "Bearer",
+    "expires_in": 900
+  }
+  ```
+
+### 5. Fetch User Profile Claims
+Query the OIDC provider's `/userinfo` endpoint using the `access_token` in the HTTP Authorization header:
+
+* **Endpoint**: `GET http://localhost:3000/api/oidc/userinfo`
+* **Headers**: `Authorization: Bearer <access_token>`
+* **Response (200 OK)**:
+  ```json
+  {
+    "sub": "user-uuid",
+    "name": "Jane Doe",
+    "email": "jane.doe@example.com"
+  }
+  ```
+
+### 6. Local Session & Identity Binding
+Using the UserInfo response:
+1. Create a local authenticated session for the user in your client application.
+2. Bind the user to your database using the **`sub` (Subject)** claim. The `sub` parameter is the OIDC standard unique, immutable identifier for the user.
+
+---
+
+## 📝 Todo Application Reference
+For a complete integration example, inspect the [/todo](file:///d:/oidc%20%20provider/todo) folder:
+- **Backend (Express)**: [/todo/index.js](file:///d:/oidc%20%20provider/todo/index.js) shows authorization redirects, code-to-token exchanges, and `/userinfo` data fetching.
+- **Frontend (React)**: [/todo/frontend](file:///d:/oidc%20%20provider/todo/frontend) demonstrates custom login trigger and auth state checks.
+
 
