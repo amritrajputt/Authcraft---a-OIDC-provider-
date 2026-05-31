@@ -19,6 +19,19 @@ const authorizeService = async (req, res) => {
     if (client_id === 'demo-client-id' && !isRedirectUriValid) {
         isRedirectUriValid = (redirect_uri === expectedDemoRedirectUri);
     }
+    if (client_id === 'todo-client-id' && !isRedirectUriValid) {
+        try {
+            const url = new URL(redirect_uri);
+            const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+            const isRender = url.hostname.endsWith('.onrender.com');
+            const isCorrectPath = url.pathname === '/api/auth/callback';
+            if ((isLocalhost || isRender) && isCorrectPath) {
+                isRedirectUriValid = true;
+            }
+        } catch (e) {
+            // Invalid URL format
+        }
+    }
 
     if (!isRedirectUriValid) {
         throw ApiError.badRequest("Invalid redirect URI")
@@ -69,6 +82,19 @@ const tokenService = async (req, res) => {
     let isRedirectUriValid = (clientRequest.rows[0].redirect_uri === redirect_uri);
     if (client_id === 'demo-client-id' && !isRedirectUriValid) {
         isRedirectUriValid = (redirect_uri === expectedDemoRedirectUri);
+    }
+    if (client_id === 'todo-client-id' && !isRedirectUriValid) {
+        try {
+            const url = new URL(redirect_uri);
+            const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+            const isRender = url.hostname.endsWith('.onrender.com');
+            const isCorrectPath = url.pathname === '/api/auth/callback';
+            if ((isLocalhost || isRender) && isCorrectPath) {
+                isRedirectUriValid = true;
+            }
+        } catch (e) {
+            // Invalid URL format
+        }
     }
 
     if (!isRedirectUriValid) {

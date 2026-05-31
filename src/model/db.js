@@ -45,6 +45,13 @@ const seedDatabase = async () => {
             ON CONFLICT (client_id) DO UPDATE SET redirect_uri = EXCLUDED.redirect_uri
         `, [hashedSecret, redirectUri]);
 
+        const hashedTodoSecret = await bcrypt.hash('todo-client-secret', 10);
+        await pool.query(`
+            INSERT INTO clients (client_id, client_secret, redirect_uri, app_name)
+            VALUES ('todo-client-id', $1, 'http://localhost:4000/api/auth/callback', 'Todo Application')
+            ON CONFLICT (client_id) DO UPDATE SET redirect_uri = EXCLUDED.redirect_uri
+        `, [hashedTodoSecret]);
+
         console.log('Database seeded with demo user and client!');
     } catch (err) {
         console.error('Database seeding failed:', err);
