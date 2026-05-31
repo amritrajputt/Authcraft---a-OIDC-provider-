@@ -45,7 +45,7 @@ app.use("/api/oidc", oidcRouter);
 app.use('/', discoveryRoutes);
 app.use("/demo-client", demoClientRouter);
 
-// Serve static assets in production
+
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/dist')));
     
