@@ -11,12 +11,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 4000;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:4001";
-
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Enable CORS for React Frontend with credentials (cookies) support
 app.use(
   cors({
     origin: FRONTEND_URL,
@@ -30,18 +26,14 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: { 
-      maxAge: 60 * 60 * 1000, // 1 hour session
-      secure: false, // Set to true if using HTTPS in production
+      maxAge: 60 * 60 * 1000,
+      secure: false, 
       httpOnly: true 
     },
   })
 );
-
-// In-Memory Todo Store
-// Struct: { id: string, userId: string, task: string, completed: boolean }
 const todosDb = [];
 
-// Middleware to protect API routes
 const requireAuth = (req, res, next) => {
   if (!req.session.userProfile) {
     return res.status(401).json({ success: false, message: "Unauthorized: Please log in." });
@@ -49,10 +41,7 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-// ==========================================
-// [OIDC INTEGRATION STEP 1] - AUTHORIZATION REQUEST
-// Redirect user's browser to the OIDC Provider's authorize endpoint.
-// ==========================================
+//STEP 1 - AUTHORIZATION REQUEST
 app.get("/api/auth/login", (req, res) => {
   const providerUrl = process.env.OIDC_PROVIDER_URL || "http://localhost:3000";
   const authUrl =
@@ -67,9 +56,7 @@ app.get("/api/auth/login", (req, res) => {
   res.redirect(authUrl);
 });
 
-// ==========================================
-// [OIDC INTEGRATION STEP 2 & 3] - CALLBACK HANDLER & TOKEN EXCHANGE
-// ==========================================
+//STEP 2 & 3 - CALLBACK HANDLER & TOKEN EXCHANGE
 app.get("/api/auth/callback", async (req, res) => {
   const { code, state, error, error_description } = req.query;
 
@@ -85,7 +72,7 @@ app.get("/api/auth/callback", async (req, res) => {
     const providerUrl = process.env.OIDC_PROVIDER_URL || "http://localhost:3000";
 
     console.log("1. Exchanging authorization code for tokens...");
-    // [OIDC INTEGRATION STEP 2] - BACK-CHANNEL TOKEN EXCHANGE
+    //STEP 2 - BACK-CHANNEL TOKEN EXCHANGE
     const tokenResponse = await fetch(`${providerUrl}/api/oidc/token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -104,7 +91,7 @@ app.get("/api/auth/callback", async (req, res) => {
     }
 
     console.log("2. Fetching UserInfo from OIDC Provider using Access Token...");
-    // [OIDC INTEGRATION STEP 3] - FETCH USER PROFILE CLAIMS
+    // STEP 3 - FETCH USER PROFILE CLAIMS
     const userinfoResponse = await fetch(`${providerUrl}/api/oidc/userinfo`, {
       method: "GET",
       headers: {
@@ -117,12 +104,11 @@ app.get("/api/auth/callback", async (req, res) => {
       throw new Error(profile.error_description || "UserInfo extraction failed");
     }
 
-    // [OIDC INTEGRATION STEP 4] - LOCAL SESSION CREATION
+    //STEP 4 - LOCAL SESSION CREATION
     req.session.userProfile = profile;
-    req.session.userId = profile.sub; // unique subject identifier (OIDC sub claim)
+    req.session.userId = profile.sub;
 
     console.log("Authentication successful! Session created for user:", profile.email);
-    // Redirect browser back to React frontend dashboard
     res.redirect(`${FRONTEND_URL}`);
   } catch (err) {
     console.error("Authentication Callback Failed:", err);
@@ -150,17 +136,14 @@ app.post("/api/auth/logout", requireAuth, (req, res) => {
   });
 });
 
-// ==========================================
-// [OIDC INTEGRATION STEP 5] - USER IDENTIFICATION BY 'sub' CLAIM
-// ==========================================
-// Get all Todos for the current logged-in user
+//STEP 5 - USER IDENTIFICATION BY 'sub' CLAIM
 app.get("/api/todos", requireAuth, (req, res) => {
   const userId = req.session.userId;
   const userTodos = todosDb.filter((todo) => todo.userId === userId);
   res.json({ success: true, todos: userTodos });
 });
 
-// Add a Todo task
+
 app.post("/api/todos", requireAuth, (req, res) => {
   const { task } = req.body;
   if (!task || !task.trim()) {
@@ -169,7 +152,7 @@ app.post("/api/todos", requireAuth, (req, res) => {
 
   const newTodo = {
     id: Date.now().toString(),
-    userId: req.session.userId, // bound to OIDC sub claim
+    userId: req.session.userId, 
     task: task.trim(),
     completed: false,
   };
@@ -178,7 +161,7 @@ app.post("/api/todos", requireAuth, (req, res) => {
   res.status(201).json({ success: true, todo: newTodo });
 });
 
-// Delete a Todo task
+
 app.delete("/api/todos/:id", requireAuth, (req, res) => {
   const { id } = req.params;
   const userId = req.session.userId;

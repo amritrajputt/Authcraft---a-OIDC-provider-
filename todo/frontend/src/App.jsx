@@ -11,22 +11,19 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Check user session on mount
   useEffect(() => {
-    // Check for any OIDC redirect errors in the URL
     const searchParams = new URLSearchParams(window.location.search);
     const urlError = searchParams.get("error");
     const urlErrorDesc = searchParams.get("error_description");
     if (urlError) {
       setError(`OIDC Error: ${urlError} - ${urlErrorDesc || ""}`);
-      // Clean query parameters from URL
+      
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     checkAuth();
   }, []);
 
-  // Fetch todos if user becomes authenticated
   useEffect(() => {
     if (user) {
       fetchTodos();
@@ -36,7 +33,7 @@ export default function App() {
   const checkAuth = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
-        credentials: "include", // Required to pass session cookie
+        credentials: "include", 
       });
       const data = await response.json();
       if (response.ok && data.success) {
@@ -64,7 +61,6 @@ export default function App() {
   };
 
   const handleLogin = () => {
-    // Redirect browser to initiate OIDC flow
     window.location.href = `${BACKEND_URL}/api/auth/login`;
   };
 
@@ -131,9 +127,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col justify-center items-center px-4 py-10">
       
       {!user ? (
-        /* ==================== LANDING / LOGIN PAGE ==================== */
         <div className="relative w-full max-w-md">
-          {/* Background glows */}
           <div className="absolute -top-12 -left-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
 
@@ -172,10 +166,8 @@ export default function App() {
           </div>
         </div>
       ) : (
-        /* ==================== SECURED TODOS DASHBOARD ==================== */
         <div className="w-full max-w-2xl space-y-6">
           
-          {/* Header / Navbar */}
           <div className="bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 rounded-2xl p-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-md">
@@ -194,7 +186,6 @@ export default function App() {
             </button>
           </div>
 
-          {/* OIDC Profile Details */}
           <div className="bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 rounded-3xl p-6 shadow-lg space-y-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">Authenticated OIDC Profile</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-neutral-950/80 border border-neutral-850 rounded-2xl p-5 text-sm">
@@ -213,11 +204,9 @@ export default function App() {
             </div>
           </div>
 
-          {/* Todo management */}
           <div className="bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 rounded-3xl p-6 shadow-lg space-y-6">
             <h3 className="text-xl font-bold text-white">Your Tasks</h3>
 
-            {/* List */}
             <div className="space-y-3">
               {todos.length === 0 ? (
                 <div className="text-center py-10 bg-neutral-950/50 border border-dashed border-neutral-800 rounded-2xl">
@@ -253,7 +242,7 @@ export default function App() {
               )}
             </div>
 
-            {/* Add Todo form */}
+            
             <form onSubmit={handleAddTodo} className="flex items-center space-x-3 pt-4 border-t border-neutral-850">
               <input
                 type="text"
