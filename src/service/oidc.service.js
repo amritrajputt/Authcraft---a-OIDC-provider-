@@ -10,7 +10,17 @@ const authorizeService = async (req, res) => {
     if (client.rows.length == 0) {
         throw ApiError.notFound("Client not found")
     }
-    if (client.rows[0].redirect_uri != redirect_uri) {
+
+    const host = req.get('host');
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const expectedDemoRedirectUri = `${protocol}://${host}/demo-client/callback`;
+
+    let isRedirectUriValid = (client.rows[0].redirect_uri === redirect_uri);
+    if (client_id === 'demo-client-id' && !isRedirectUriValid) {
+        isRedirectUriValid = (redirect_uri === expectedDemoRedirectUri);
+    }
+
+    if (!isRedirectUriValid) {
         throw ApiError.badRequest("Invalid redirect URI")
     }
     if (response_type !== 'code') {
@@ -51,7 +61,17 @@ const tokenService = async (req, res) => {
     if (clientRequest.rows.length == 0) {
         throw ApiError.badRequest("invalid_client")
     }
-    if (clientRequest.rows[0].redirect_uri !== redirect_uri) {
+
+    const host = req.get('host');
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const expectedDemoRedirectUri = `${protocol}://${host}/demo-client/callback`;
+
+    let isRedirectUriValid = (clientRequest.rows[0].redirect_uri === redirect_uri);
+    if (client_id === 'demo-client-id' && !isRedirectUriValid) {
+        isRedirectUriValid = (redirect_uri === expectedDemoRedirectUri);
+    }
+
+    if (!isRedirectUriValid) {
         throw ApiError.badRequest("invalid_redirect_uri")
     }
     const isSecretValid = await bcrypt.compare(client_secret, clientRequest.rows[0].client_secret);

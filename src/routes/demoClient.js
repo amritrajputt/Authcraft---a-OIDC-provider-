@@ -63,9 +63,10 @@ demoClientRouter.get('/callback', async (req, res) => {
         const host = req.get('host');
         const protocol = host.includes('localhost') ? 'http' : 'https';
         const redirectUri = `${protocol}://${host}/demo-client/callback`;
+        const baseUrl = `${protocol}://${host}`;
 
         // Step 1: Exchange Code for Token (Server-to-Server)
-        const tokenResponse = await fetch('http://localhost:3000/api/oidc/token', {
+        const tokenResponse = await fetch(`${baseUrl}/api/oidc/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -83,7 +84,7 @@ demoClientRouter.get('/callback', async (req, res) => {
         }
 
         // Step 2: Fetch User Profile using Access Token
-        const userinfoResponse = await fetch('http://localhost:3000/api/oidc/userinfo', {
+        const userinfoResponse = await fetch(`${baseUrl}/api/oidc/userinfo`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${tokens.access_token}`
