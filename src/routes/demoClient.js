@@ -29,8 +29,8 @@ demoClientRouter.get('/', (req, res) => {
         </head>
         <body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4 relative">
             <div class="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl">
-                <div class="w-16 h-16 mx-auto bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-950/50 mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white">
+                <div class="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-white/5 mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-black">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
                     </svg>
                 </div>
@@ -39,9 +39,9 @@ demoClientRouter.get('/', (req, res) => {
                     Welcome to the demo client app! Click below to authenticate securely using your custom OIDC Provider.
                 </p>
                 <a href="${authUrl}" 
-                   class="inline-flex w-full items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-950/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 space-x-2">
+                   class="inline-flex w-full items-center justify-center bg-white hover:bg-slate-200 text-black font-semibold py-4 px-6 rounded-xl transition shadow-lg shadow-white/5 focus:outline-none focus:ring-2 focus:ring-white/50 space-x-2">
                     <span>Login using Custom OIDC</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-black">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                     </svg>
                 </a>
@@ -151,21 +151,21 @@ function renderSuccessPage(tokens, profile, state) {
                     <!-- Tokens Display -->
                     <div>
                         <h2 class="text-lg font-semibold text-white mb-3">ID Token</h2>
-                        <div class="bg-slate-950/80 border border-slate-850 rounded-2xl p-4 font-mono text-xs text-purple-400 break-all select-all leading-normal max-h-24 overflow-y-auto">
+                        <div class="bg-slate-950/80 border border-slate-850 rounded-2xl p-4 font-mono text-xs text-neutral-300 break-all select-all leading-normal max-h-24 overflow-y-auto">
                             ${tokens.id_token}
                         </div>
                     </div>
 
                     <div>
                         <h2 class="text-lg font-semibold text-white mb-3">Access Token</h2>
-                        <div class="bg-slate-950/80 border border-slate-850 rounded-2xl p-4 font-mono text-xs text-indigo-400 break-all select-all leading-normal max-h-24 overflow-y-auto">
+                        <div class="bg-slate-950/80 border border-slate-850 rounded-2xl p-4 font-mono text-xs text-neutral-300 break-all select-all leading-normal max-h-24 overflow-y-auto">
                             ${tokens.access_token}
                         </div>
                     </div>
 
                     <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs text-slate-500">
                         <span>OAuth State Verified: <b>${state}</b></span>
-                        <a href="/demo-client" class="text-purple-400 hover:text-purple-300 font-semibold">Try Again &rarr;</a>
+                        <a href="/demo-client" class="text-neutral-300 hover:text-white font-semibold">Try Again &rarr;</a>
                     </div>
                 </div>
             </div>
