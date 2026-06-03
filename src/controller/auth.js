@@ -17,7 +17,13 @@ const register = async (req, res) => {
 }
 const login = async (req, res) => {
     try{
-        const {email, password} = req.body;
+        const {email, password, client_id} = req.body;
+        if (email === 'demo@example.com' && client_id !== 'demo-client-id') {
+            return res.status(403).json({
+                success: false,
+                message: "Demo account login is only allowed for the demo client application."
+            });
+        }
         const response = await authService.login(email, password);
         req.session.userId = response.data.id;
         

@@ -41,6 +41,13 @@ const authorizeService = async (req, res) => {
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
+    if (req.session.userId) {
+        const userQuery = await pool.query("SELECT email FROM users WHERE id = $1", [req.session.userId]);
+        if (userQuery.rows.length > 0 && userQuery.rows[0].email === 'demo@example.com' && client_id !== 'demo-client-id') {
+            req.session.userId = null;
+        }
+    }
+
     if (!req.session.userId) {
         const loginUrl = `${frontendUrl}/login?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=${response_type}&scope=${scope}&state=${state}`;
         return res.redirect(loginUrl);
