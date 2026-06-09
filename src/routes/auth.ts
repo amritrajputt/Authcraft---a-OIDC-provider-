@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from "express"
 import validate from "../../common/middleware/validate.middleware.js";
 import { registerSchema, loginSchema } from "../dto/dto.auth.js";

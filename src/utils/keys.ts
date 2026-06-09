@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { generateKeyPairSync } from 'crypto';
 import dotenv from 'dotenv';
 dotenv.config();

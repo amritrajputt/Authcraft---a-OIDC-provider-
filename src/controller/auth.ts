@@ -1,3 +1,4 @@
+// @ts-nocheck
 import pool from "../model/db.js";
 import bcrypt from "bcrypt";
 import * as authService from "../service/auth.service.js";

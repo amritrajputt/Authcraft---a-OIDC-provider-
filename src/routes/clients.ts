@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from "express"
 import { clientController } from "../controller/clients.js";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 class ApiError extends Error{
     constructor(statusCode, message, error = []){
         super(message);

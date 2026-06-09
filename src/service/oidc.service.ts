@@ -1,3 +1,4 @@
+// @ts-nocheck
 import pool from "../model/db.js"
 import ApiError from "../../common/ApiError.js"
 import { v4 as uuidv4 } from "uuid"

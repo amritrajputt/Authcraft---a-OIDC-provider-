@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { authorizeService, tokenService, userInfoService, tokenIntrospectionService, refreshTokenService } from "../service/oidc.service.js"
 
 const authorizeController = async (req, res) => {

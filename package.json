@@ -2,12 +2,13 @@
   "name": "src",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch index.js",
-    "build": "pnpm --filter frontend build"
+    "dev": "tsx watch index.ts",
+    "build:backend": "tsc",
+    "build": "pnpm --filter frontend build && tsc"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +25,17 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.21.0",
     "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.9.2",
+    "@types/pg": "^8.20.0",
+    "@types/uuid": "^11.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
   }
 }

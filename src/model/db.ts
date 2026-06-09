@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {Pool} from 'pg';
 import bcrypt from 'bcrypt';
 import fs from 'fs';

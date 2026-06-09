@@ -1,3 +1,4 @@
+// @ts-nocheck
 class ApiResponse{
     constructor(statusCode, data, message ){
         this.statusCode = statusCode;

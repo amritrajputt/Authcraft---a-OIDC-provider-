@@ -1,3 +1,4 @@
+// @ts-nocheck
 import ApiError from "../ApiError.js";
 import BaseDto from "../dto/base.dto.js";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { registerClient } from '../service/client.service.js'
 
 const clientController = async (req, res) => {
