@@ -1,23 +1,26 @@
-// @ts-nocheck
+
 class ApiResponse{
-    constructor(statusCode, data, message ){
+    statusCode: number;
+    data: any;
+    message: string;
+    constructor(statusCode: number, data: any, message: string ){
         this.statusCode = statusCode;
         this.data = data;
         this.message = message;
     }
-    static success(statusCode,data,message = 'Success'){
+    static success(statusCode:number, data:any, message:string = 'Success'){
         return new ApiResponse(statusCode, data, message);
     }
-    static ok(statusCode,data,message = 'OK'){
+    static ok(statusCode:number, data:any, message:string = 'OK'){
         return new ApiResponse(statusCode, data, message);
     }
-    static created(statusCode,data,message = 'Created'){
+    static created(statusCode:number, data:any, message:string = 'Created'){
         return new ApiResponse(statusCode, data, message);
     }
-    static updated(statusCode,data,message = 'Updated'){
+    static updated(statusCode:number, data:any, message:string = 'Updated'){
         return new ApiResponse(statusCode, data, message);
     }
-    static deleted(statusCode,data,message = 'Deleted'){
+    static deleted(statusCode:number, data:any, message:string = 'Deleted'){
         return new ApiResponse(statusCode, data, message);
     }
 }

@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { Router } from 'express';
 
 const demoClientRouter = Router();

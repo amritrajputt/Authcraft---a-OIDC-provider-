@@ -116,7 +116,7 @@ export default function Login() {
 
               <div className="flex flex-col space-y-3">
                 <a
-                  href="/demo-client"
+                  href={`${BACKEND_URL}/demo-client`}
                   className="inline-flex w-full items-center justify-center bg-white hover:bg-neutral-200 text-black font-semibold py-3.5 px-4 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-white/50 space-x-2 cursor-pointer font-sans"
                 >
                   <span>Launch Demo Client App</span>

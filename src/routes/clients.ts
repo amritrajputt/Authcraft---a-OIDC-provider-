@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { Router } from "express"
-import { clientController } from "../controller/clients.js";
+import { clientController } from "../controller/clients.controller.js";
 
 const clientRouter = Router()
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from "express";
 import { Jwt } from "../utils/utils.jwt.js";
 

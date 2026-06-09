@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { v4 as uuidv4 } from 'uuid';
 import crypto from "crypto";
 import bcrypt from "bcrypt";
@@ -6,7 +5,20 @@ import pool from '../model/db.js'
 import ApiError from '../../common/ApiError.js';
 import ApiResponse from '../../common/ApiResponse.js';
 
-const registerClient = async (app_name, redirect_uri) => { 
+interface ClientInput {
+    app_name: string;
+    redirect_uri: string;
+}
+interface Client {
+    id: string;
+    client_id: string;
+    client_secret: string;
+    app_name: string;
+    redirect_uri: string;
+    created_at: string;
+}
+const registerClient = async (clientInput: ClientInput): Promise<ApiResponse> => { 
+    const {app_name, redirect_uri} = clientInput;
     if (!app_name || !redirect_uri) {
         throw ApiError.badRequest("App name and redirect URI are required");
     }
@@ -25,7 +37,7 @@ const registerClient = async (app_name, redirect_uri) => {
         [client_id, hashed_secret, app_name, redirect_uri]
     );
 
-    const client = {
+    const client:Client = {
         id: result.rows[0].id,
         client_id: result.rows[0].client_id,
         client_secret: client_secret, 

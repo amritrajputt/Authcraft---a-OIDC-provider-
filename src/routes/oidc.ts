@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { Router } from "express"
-import { authorizeController, tokenController, userInfoController, tokenIntrospectionController, refreshTokenController } from "../controller/oidc.js"
+import { authorizeController, tokenController, userInfoController, tokenIntrospectionController, refreshTokenController } from "../controller/oidc.controller.js"
 
 const oidcRouter = Router()
 

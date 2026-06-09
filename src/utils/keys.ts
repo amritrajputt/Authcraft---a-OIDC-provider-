@@ -1,9 +1,13 @@
-// @ts-nocheck
 import { generateKeyPairSync } from 'crypto';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const keyPair = () => {
+interface KeyPair {
+    privateKey: string;
+    publicKey: string;
+}
+
+const keyPair = (): KeyPair => {
     const {privateKey, publicKey} = generateKeyPairSync('rsa',{
         modulusLength: 2048,
         publicKeyEncoding: {type: 'spki', format: 'pem'}, // spki = subject public key info

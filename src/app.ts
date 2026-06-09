@@ -1,6 +1,5 @@
-// @ts-nocheck
-import express from "express";
 import cors from "cors";
+import express, { Request, Response, NextFunction } from "express";
 import authRouter from "./routes/auth.js";
 import clientRouter from "./routes/clients.js";
 import oidcRouter from "./routes/oidc.js";
@@ -21,13 +20,7 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: allowedOrigins,
     credentials: true
 }));
 
@@ -46,24 +39,28 @@ app.use("/api/oidc", oidcRouter);
 app.use('/', discoveryRoutes);
 app.use("/demo-client", demoClientRouter);
 
-app.get("/health", (req, res) => {
+app.get("/health", (req: Request, res: Response) => {
     res.status(200).json({ status: "OK", message: "Server is healthy", timestamp: new Date().toISOString() });
 });
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/dist')));
-    
-    app.get(/^(?!\/api|\/demo-client|\/\.well-known|\/jwks\.json).*$/, (req, res) => {
+
+    app.get("*", (req: Request, res: Response) => {
+        if (req.path.startsWith("/api") || req.path.startsWith("/.well-known")) {
+            res.status(404).json({ success: false, message: "Not found" });
+            return;
+        }
         res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-    });
+    })
 } else {
-    app.get("/", (req, res) => {
+    app.get("/", (req: Request, res: Response) => {
         res.json({ message: "OIDC Provider Server is running" });
     });
+
 }
 
-
-app.use((err, req, res, next) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error("App Error:", err);
     const statusCode = err.statusCode || 500;
     res.status(statusCode).json({
