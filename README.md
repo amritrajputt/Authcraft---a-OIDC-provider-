@@ -1,4 +1,4 @@
-# Custom OIDC Identity Provider (From Scratch)
+# AuthCraft :- OIDC Identity Provider
 
 A custom, spec-compliant OpenID Connect (OIDC) Identity Provider built from scratch. It features dynamic key rotation, refresh token rotation (RTR) with thread-safe row locking, PKCE verification for public clients, and persistent Redis caching and session stores.
 
