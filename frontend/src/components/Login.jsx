@@ -43,7 +43,6 @@ export default function Login() {
     setLoading(true);
     try {
       if (isRegistering) {
-        // Step 1: Register the new user
         const regResponse = await fetch(`${BACKEND_URL}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
