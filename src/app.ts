@@ -35,8 +35,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use(generalRateLimiter);
 
 
+// Create a compatible wrapper for connect-redis v9+ since it expects the node-redis client API
+const redisStoreClient = {
+    get: (key: string) => redisClient.get(key),
+    set: (key: string, value: string, options?: { EX?: number }) => {
+        if (options && options.EX) {
+            return redisClient.set(key, value, "EX", options.EX);
+        }
+        return redisClient.set(key, value);
+    },
+    del: (key: string | string[]) => {
+        const keys = Array.isArray(key) ? key : [key];
+        return redisClient.del(...keys);
+    }
+};
+
 const redisStore = new RedisStore({
-    client: redisClient,
+    client: redisStoreClient as any,
     prefix: "oidc_sess:", // Redis keys oidc_sess:<sid>
 });
 
