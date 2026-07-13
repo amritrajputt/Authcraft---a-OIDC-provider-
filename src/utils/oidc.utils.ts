@@ -12,13 +12,6 @@ export function isValidRedirectUri(params: {
         return true;
     }
 
-    if (clientId === 'demo-client-id') {
-        const protocol = host.includes('localhost') ? 'http' : 'https';
-        const expectedDemoRedirectUri = `${protocol}://${host}/demo-client/callback`;
-        return incomingRedirectUri === expectedDemoRedirectUri;
-    }
-
-    
     if (clientId === 'todo-client-id') {
         try {
             const url = new URL(incomingRedirectUri);

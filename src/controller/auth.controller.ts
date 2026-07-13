@@ -23,13 +23,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, password, client_id } = req.body as LoginInput;
-        if (email === 'demo@example.com' && client_id !== 'demo-client-id') {
-            return res.status(403).json({
-                success: false,
-                message: "Demo account login is only allowed for the demo client application."
-            });
-        }
+        const { email, password } = req.body as LoginInput;
         const response = await authService.login({ email, password });
         req.session.userId = response.data.id;
 

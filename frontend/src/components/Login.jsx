@@ -110,23 +110,13 @@ export default function Login() {
               </div>
 
               <p className="text-sm text-neutral-300 leading-relaxed font-sans">
-                To test the provider flow end-to-end (including login, user consent, and token issuance), please launch our built-in demo client application:
+                To authorize or register client applications, please use the link below:
               </p>
 
               <div className="flex flex-col space-y-3">
                 <a
-                  href={`${BACKEND_URL}/demo-client`}
-                  className="inline-flex w-full items-center justify-center bg-white hover:bg-neutral-200 text-black font-semibold py-3.5 px-4 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-white/50 space-x-2 cursor-pointer font-sans"
-                >
-                  <span>Launch Demo Client App</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </a>
-
-                <a
                   href="/register-client"
-                  className="inline-flex w-full items-center justify-center bg-transparent hover:bg-neutral-850 border border-neutral-850 text-neutral-300 font-semibold py-3.5 px-4 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-neutral-700/50 space-x-2 cursor-pointer font-sans"
+                  className="inline-flex w-full items-center justify-center bg-white hover:bg-neutral-200 text-black font-semibold py-3.5 px-4 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-white/50 space-x-2 cursor-pointer font-sans"
                 >
                   <span>Register Client Application</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">

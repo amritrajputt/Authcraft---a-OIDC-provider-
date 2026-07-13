@@ -60,12 +60,6 @@ const authorizeService = async (params: AuthorizeParams) => {
 
 
     let sessionUserId = userId;
-    if (userId) {
-        const userQuery = await pool.query("SELECT email FROM users WHERE id = $1", [userId]);
-        if (userQuery.rows.length > 0 && userQuery.rows[0].email === 'demo@example.com' && clientId !== 'demo-client-id') {
-            sessionUserId = null;
-        }
-    }
 
     if (!sessionUserId) {
         const loginUrl = `${frontendUrl}/login?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${scope}&state=${state}`;

@@ -7,7 +7,6 @@ import session from 'express-session'
 import { RedisStore } from 'connect-redis';
 import redisClient from './model/redis.js';
 import discoveryRoutes from './routes/discovery.js';
-import demoClientRouter from "./routes/demoClient.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { rotateSigningKeys } from "./utils/rotateKeys.js";
@@ -72,7 +71,6 @@ app.use("/api/auth",authRateLimiter ,authRouter);
 app.use("/api/clients", clientRouter);
 app.use("/api/oidc", oidcRouter);
 app.use('/', discoveryRoutes);
-app.use("/demo-client", demoClientRouter);
 
 app.get("/health", (req: Request, res: Response) => {
     res.status(200).json({ status: "OK", message: "Server is healthy", timestamp: new Date().toISOString() });

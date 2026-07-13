@@ -68,16 +68,6 @@ const seedDatabase = async () => {
             VALUES ('demo@example.com', 'Demo User', $1) 
             ON CONFLICT (email) DO NOTHING
         `, [hashedPassword]);
-
-        const hashedSecret = await bcrypt.hash('demo-client-secret', 10);
-        const serverUrl = process.env.ISSUER_URL || 'http://localhost:3000';
-        const redirectUri = `${serverUrl}/demo-client/callback`;
-        await pool.query(`
-            INSERT INTO clients (client_id, client_secret, redirect_uri, app_name)
-            VALUES ('demo-client-id', $1, $2, 'Demo Client App')
-            ON CONFLICT (client_id) DO UPDATE SET redirect_uri = EXCLUDED.redirect_uri
-        `, [hashedSecret, redirectUri]);
-
         const hashedTodoSecret = await bcrypt.hash('todo-client-secret', 10);
         await pool.query(`
             INSERT INTO clients (client_id, client_secret, redirect_uri, app_name)
@@ -85,7 +75,7 @@ const seedDatabase = async () => {
             ON CONFLICT (client_id) DO UPDATE SET redirect_uri = EXCLUDED.redirect_uri
         `, [hashedTodoSecret]);
 
-        console.log('Database seeded with demo user and client!');
+        console.log('Database seeded with demo user and todo client!');
     } catch (err) {
         console.error('Database seeding failed:', err);
     }
